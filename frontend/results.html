@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analysis Results - The Nutritionist</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* Specific overrides for results page to ensure full visibility */
+        .results-container {
+            padding: 20px;
+            overflow-y: auto;
+            height: 100%;
+            background: var(--dark-bg);
+        }
+
+        .header-nav {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .back-btn {
+            background: none;
+            border: none;
+            color: var(--text-color);
+            font-size: 1.2rem;
+            cursor: pointer;
+            margin-right: 15px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- New Analysis Results View -->
+        <div class="results-container">
+            <div class="header-nav">
+                <button class="back-btn" onclick="goBack()"><i class="fa-solid fa-arrow-left"></i></button>
+                <h2>Meal Analysis</h2>
+            </div>
+
+            <div id="resultsContent">
+                <!-- Data will be injected here by JS -->
+            </div>
+
+            <div style="margin-top: 30px; text-align: center;">
+                <button onclick="goBack()" class="control-btn"
+                    style="width: 100%; flex-direction: row; justify-content: center; background: var(--primary-color); padding: 15px;">
+                    <i class="fa-solid fa-camera"></i>
+                    <span>Scan Another Meal</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function goBack() {
+            window.location.href = 'index.html';
+        }
+
+        // Load data from localStorage
+        document.addEventListener('DOMContentLoaded', () => {
+            const dataStr = localStorage.getItem('analysisResults');
+            if (!dataStr) {
+                alert("No analysis data found. Redirecting...");
+                goBack();
+                return;
+            }
+
+            const data = JSON.parse(dataStr);
+            renderResults(data);
+        });
+
+        function renderResults(data) {
+            const { total_nutrition, health_score, food_items, health_summary } = data;
+            const resultsContent = document.getElementById('resultsContent');
+
+            // Helper for color
+            const getHealthColor = (score) => {
+                if (score >= 80) return '#10b981';
+                if (score >= 50) return '#f59e0b';
+                return '#ef4444';
+            };
+
+            let itemsHtml = food_items.map(item => `
+                <div style="background: rgba(255,255,255,0.05); border-radius: 15px; padding: 15px; margin-bottom: 15px;">
+                    <div style="display:flex; justify-content:space-between; margin-bottom: 5px;">
+                        <strong style="font-size: 1.1rem;">${item.name}</strong>
+                        <span style="color:var(--primary-color); font-weight:bold;">${item.nutrition.calories_kcal} kcal</span>
+                    </div>
+                    <div style="font-size:0.9rem; color:#94a3b8; display:flex; justify-content:space-between;">
+                        <span>${item.portion_desc}</span>
+                        <span style="background: rgba(255,255,255,0.1); padding: 2px 8px; border-radius: 4px;">${item.health_rating}</span>
+                    </div>
+                    <!-- Mini macros for item -->
+                    <div style="margin-top: 10px; display:flex; gap: 10px; font-size: 0.8rem; color: #cbd5e1;">
+                        <span>P: ${item.nutrition.protein_g}g</span>
+                        <span>C: ${item.nutrition.carbs_g}g</span>
+                        <span>F: ${item.nutrition.fat_g}g</span>
+                    </div>
+                </div>
+            `).join('');
+
+            resultsContent.innerHTML = `
+                <div class="health-score-container" style="margin-bottom: 30px;">
+                    <div class="score-circle" style="width: 120px; height: 120px; font-size: 2.5rem; border-color: ${getHealthColor(health_score)}; margin-bottom: 15px;">
+                        ${health_score}
+                    </div>
+                    <h3 style="margin: 0; font-weight: 400; color: #94a3b8;">Health Score</h3>
+                </div>
+
+                <div class="nutrition-summary" style="margin-bottom: 30px;">
+                    <div class="macro-card">
+                        <div class="macro-value">${total_nutrition.calories_kcal}</div>
+                        <div class="macro-label">Total Calories</div>
+                    </div>
+                    <div class="macro-card">
+                        <div class="macro-value">${total_nutrition.protein_g}g</div>
+                        <div class="macro-label">Protein</div>
+                    </div>
+                    <div class="macro-card">
+                        <div class="macro-value">${total_nutrition.carbs_g}g</div>
+                        <div class="macro-label">Carbs</div>
+                    </div>
+                    <div class="macro-card">
+                        <div class="macro-value">${total_nutrition.fat_g}g</div>
+                        <div class="macro-label">Fat</div>
+                    </div>
+                </div>
+
+                <div style="background: linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(16, 185, 129, 0.2)); padding: 20px; border-radius: 20px; margin-bottom: 30px; border: 1px solid rgba(255,255,255,0.1);">
+                    <h4 style="margin-bottom:10px; color: var(--text-color);"><i class="fa-solid fa-wand-magic-sparkles" style="color: yellow; margin-right: 8px;"></i> AI Insight</h4>
+                    <p style="font-size: 0.95rem; line-height: 1.5; color: #e2e8f0;">${health_summary}</p>
+                </div>
+
+                <h3 style="margin-bottom: 15px;">Food Breakdown</h3>
+                <div>
+                    ${itemsHtml}
+                </div>
+            `;
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Nutritionist AI</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="glass-header">
+            <div class="logo">
+                <i class="fa-solid fa-leaf"></i> The Nutritionist
+            </div>
+            <div class="user-profile">
+                <!-- Placeholder for user icon -->
+                <div class="avatar">AH</div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main>
+            <!-- Camera/Image View -->
+            <section id="cameraview" class="view-section active">
+                <div class="video-container" id="videoContainer">
+                    <video id="cameraFeed" autoplay playsinline></video>
+                    <canvas id="captureCanvas" style="display: none;"></canvas>
+                    <img id="previewImage" src="" alt="Captured Food" style="display: none;">
+
+                    <!-- Camera Error Placeholder -->
+                    <div id="cameraError" class="camera-error hidden">
+                        <i class="fa-solid fa-camera-slash"></i>
+                        <p>Camera source not found</p>
+                        <span>Please upload an image/photo</span>
+                    </div>
+
+                    <!-- Overlay for Analysis Results (HUD) -->
+                    <div id="arOverlay" class="ar-overlay hidden"></div>
+                </div>
+            </section>
+
+            <!-- History View -->
+            <section id="historyView" class="view-section hidden" style="overflow-y: auto; background: var(--dark-bg);">
+                <h2 style="margin-bottom: 20px;">Meal History</h2>
+                <div id="historyList">
+                    <!-- History items will be injected here -->
+                    <p style="color: var(--text-muted); text-align: center; margin-top: 50px;">No meals scanned yet.</p>
+                </div>
+            </section>
+
+            <!-- Bottom Navigation -->
+            <nav class="bottom-nav glass-panel">
+                <button class="nav-btn" id="historyNavBtn">
+                    <i class="fa-solid fa-clock-rotate-left"></i>
+                    <span>History</span>
+                </button>
+
+                <div class="action-group">
+                    <button id="captureBtn" class="main-action-btn">
+                        <div class="inner-circle"></div>
+                    </button>
+                    <!-- Small upload button next to capture -->
+                    <button id="uploadBtn" class="mini-upload-btn" title="Upload">
+                        <i class="fa-solid fa-image"></i>
+                    </button>
+                </div>
+                <input type="file" id="fileInput" accept="image/*" hidden>
+
+                <button class="nav-btn" id="coachNavBtn">
+                    <i class="fa-solid fa-robot"></i>
+                    <span>Coach</span>
+                </button>
+            </nav>
+
+            <!-- Coach Chat Slide-up Panel -->
+            <section id="coachPanel" class="slide-panel glass-panel hidden">
+                <div class="panel-header">
+                    <div style="display: flex; gap: 10px; align-items: center;">
+                        <button id="chatHistoryBtn" title="Chat History"><i class="fa-solid fa-list"></i></button>
+                        <h2 style="font-size: 1.2rem;"><i class="fa-solid fa-robot"></i> Coach</h2>
+                    </div>
+                    <div>
+                        <button id="newChatBtn" title="New Chat" style="margin-right: 10px;"><i
+                                class="fa-solid fa-plus"></i></button>
+                        <button id="closeCoachBtn"><i class="fa-solid fa-chevron-down"></i></button>
+                    </div>
+                </div>
+
+                <!-- Saved Chats List (Hidden by default) -->
+                <div id="savedChatsList" class="saved-chats-list hidden">
+                    <!-- History items injected here -->
+                </div>
+
+                <div class="chat-container" id="chatContainer">
+                    <div class="message ai-message">
+                        Hello! I'm your nutrition coach. Ask me about diet plans, food analysis, or healthy habits!
+                    </div>
+                </div>
+                <div class="chat-input-area">
+                    <input type="text" id="coachInput" placeholder="Ask about your diet...">
+                    <button id="sendCoachBtn"><i class="fa-solid fa-paper-plane"></i></button>
+                </div>
+            </section>
+
+            <!-- Detailed Analysis Panel (Slide up) -->
+            <section id="analysisPanel" class="analysis-panel glass-panel hidden">
+                <div class="panel-header">
+                    <h2>Analysis Results</h2>
+                    <button id="closePanelBtn"><i class="fa-solid fa-chevron-down"></i></button>
+                </div>
+                <div class="panel-content" id="resultsContent">
+                    <div class="loading-spinner hidden" id="loader">
+                        <i class="fa-solid fa-circle-notch fa-spin"></i> Analyzing...
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+    <script src="app.js"></script>
+</body>
+
+</html>
