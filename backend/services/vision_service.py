@@ -3,6 +3,8 @@ import requests
 import base64
 import json
 from backend.models import AnalysisResponse, FoodItem, MacroNutrients
+from backend.vision.inference import vision_service as local_vision
+
 
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 GROQ_MODEL_ID = os.getenv("GROQ_MODEL_ID", "llama-3.2-90b-vision-preview") # Updated to a vision capable model if needed, otherwise user default
@@ -49,6 +51,7 @@ from PIL import Image
 import io
 
 def analyze_image(image_bytes: bytes, media_type: str = "image/jpeg") -> AnalysisResponse:
+    final_media_type = media_type
     if not GROQ_API_KEY:
         raise RuntimeError("GROQ_API_KEY is not set.")
 
@@ -68,11 +71,21 @@ def analyze_image(image_bytes: bytes, media_type: str = "image/jpeg") -> Analysi
         buffer = io.BytesIO()
         img.save(buffer, format="JPEG", quality=85)
         processed_image_bytes = buffer.getvalue()
-        media_type = "image/jpeg" # We converted to JPEG
+        final_media_type = "image/jpeg" # We converted to JPEG
     except Exception as e:
         print(f"Image processing error: {e}")
         # Fallback to original bytes if PIL fails
         processed_image_bytes = image_bytes
+
+    # Local Model Inference (Hybrid Approach)
+    local_prediction = local_vision.predict_image(processed_image_bytes)
+    
+    current_prompt = SYSTEM_PROMPT
+    if local_prediction and "label" in local_prediction and local_prediction.get("confidence", 0) > 0.4:
+        current_prompt += f"\n\n[LOCAL MODEL HINT]\nOur custom model detected: {local_prediction['label']} (Confidence: {local_prediction['confidence']:.2f}). Consider this strongly."
+
+
+
 
     base64_image = base64.b64encode(processed_image_bytes).decode('utf-8')
     
@@ -87,10 +100,10 @@ def analyze_image(image_bytes: bytes, media_type: str = "image/jpeg") -> Analysi
             {
                 "role": "user", 
                 "content": [
-                    {"type": "text", "text": SYSTEM_PROMPT},
+                    {"type": "text", "text": current_prompt},
                     {
                         "type": "image_url",
-                        "image_url": {"url": f"data:{media_type};base64,{base64_image}"}
+                        "image_url": {"url": f"data:{final_media_type};base64,{base64_image}"}
                     }
                 ]
             }

@@ -5,6 +5,15 @@ import requests
 
 router = APIRouter()
 
+# RAG Integration
+try:
+    from backend.rag.vector_store import get_vector_store
+    vector_store = get_vector_store()
+    print("RAG: Vector store loaded successfully.")
+except Exception as e:
+    print(f"RAG Error: Could not load vector store. {e}")
+    vector_store = None
+
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 # Use a text-optimized model for the coach
 GROQ_MODEL_ID = "llama-3.3-70b-versatile" 
@@ -21,6 +30,24 @@ async def chat_with_coach(request: CoachRequest):
         raise HTTPException(status_code=500, detail="GROQ_API_KEY not configured")
 
     current_prompt = SYSTEM_PROMPT
+    
+    # RAG Retrieval
+    rag_context = ""
+    if vector_store:
+        try:
+            results = vector_store.query(
+                query_texts=[request.message],
+                n_results=3
+            )
+            if results and results['documents']:
+                rag_context = "\n".join(results['documents'][0])
+                print(f"DEBUG: RAG Context found: {rag_context[:100]}...")
+        except Exception as e:
+            print(f"RAG Query Error: {e}")
+
+    if rag_context:
+        current_prompt += f"\n\n[RELEVANT NUTRITION DATA]:\n{rag_context}\nUse the above data to answer if relevant."
+
     if request.context_data:
         current_prompt += f"\n\nContext from recent food analysis: {request.context_data}"
 
