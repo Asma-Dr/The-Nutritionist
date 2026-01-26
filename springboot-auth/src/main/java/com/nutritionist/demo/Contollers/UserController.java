@@ -24,11 +24,11 @@ import java.util.Map;
 public class UserController {
 
     private final IUserService userService;
-    private final AuthenticationManager authenticationManager;
+    // private final AuthenticationManager authenticationManager;
 
-    public UserController(IUserService userService, AuthenticationManager authenticationManager) {
+    public UserController(IUserService userService/*, AuthenticationManager authenticationManager*/) {
         this.userService = userService;
-        this.authenticationManager = authenticationManager;
+        // this.authenticationManager = authenticationManager;
     }
 
     // Créer / enregistrer un utilisateur
@@ -39,6 +39,7 @@ public class UserController {
     }
 
     // Connexion d'un utilisateur
+    /*
     @PostMapping("/login")
     public ResponseEntity<User> loginUser(@RequestBody Map<String, String> loginRequest) {
         String email = loginRequest.get("email");
@@ -54,6 +55,7 @@ public class UserController {
             return ResponseEntity.status(401).body(null); // Unauthorized
         }
     }
+    */
 
     // Rechercher un utilisateur par email
     @GetMapping("/email/{email}")
