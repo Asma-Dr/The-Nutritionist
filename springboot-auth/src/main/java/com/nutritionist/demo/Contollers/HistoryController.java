@@ -44,4 +44,13 @@ public class HistoryController {
         List<History> histories = historyService.getHistoryByUser(user.get());
         return ResponseEntity.ok(histories);
     }
+
+    
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteHistory(@PathVariable Long id) {
+        historyService.deleteHistory(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    
 }

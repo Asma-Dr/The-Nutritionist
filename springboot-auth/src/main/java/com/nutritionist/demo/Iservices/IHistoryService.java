@@ -9,4 +9,6 @@ public interface IHistoryService {
     History saveHistory(History history);
 
     List<History> getHistoryByUser(User user);
+
+    void deleteHistory(Long id);
 }

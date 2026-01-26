@@ -10,15 +10,25 @@ import com.nutritionist.demo.Iservices.IUserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import java.util.Optional;
+import java.util.List;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/users")
 public class UserController {
 
     private final IUserService userService;
+    private final AuthenticationManager authenticationManager;
 
-    public UserController(IUserService userService) {
+    public UserController(IUserService userService, AuthenticationManager authenticationManager) {
         this.userService = userService;
+        this.authenticationManager = authenticationManager;
     }
 
     // Créer / enregistrer un utilisateur
@@ -26,6 +36,23 @@ public class UserController {
     public ResponseEntity<User> registerUser(@RequestBody User user) {
         User registeredUser = userService.register(user);
         return ResponseEntity.ok(registeredUser);
+    }
+
+    // Connexion d'un utilisateur
+    @PostMapping("/login")
+    public ResponseEntity<User> loginUser(@RequestBody Map<String, String> loginRequest) {
+        String email = loginRequest.get("email");
+        String password = loginRequest.get("password");
+
+        try {
+            Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(email, password)
+            );
+            User user = (User) authentication.getPrincipal();
+            return ResponseEntity.ok(user);
+        } catch (AuthenticationException e) {
+            return ResponseEntity.status(401).body(null); // Unauthorized
+        }
     }
 
     // Rechercher un utilisateur par email
@@ -45,5 +72,25 @@ public class UserController {
         } else {
             return ResponseEntity.notFound().build();
         }
+    }
+
+    @GetMapping
+    public ResponseEntity<List<User>> getAllUsers() {
+        return ResponseEntity.ok(userService.findAll());
+    }
+
+    
+     @PutMapping("/{id}")
+    public ResponseEntity<User> updateUser(
+            @PathVariable Long id,
+            @RequestBody User user) {
+        User updatedUser = userService.updateUser(id, user);
+        return ResponseEntity.ok(updatedUser);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
+        userService.deleteUser(id);
+        return ResponseEntity.noContent().build();
     }
 }

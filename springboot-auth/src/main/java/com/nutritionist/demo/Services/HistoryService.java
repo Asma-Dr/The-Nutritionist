@@ -24,4 +24,9 @@ public class HistoryService implements IHistoryService {
     public List<History> getHistoryByUser(User user) {
         return historyRepository.findByUser(user);
     }
+
+    @Override
+    public void deleteHistory(Long id) {
+        historyRepository.deleteById(id);
+    }
 }
