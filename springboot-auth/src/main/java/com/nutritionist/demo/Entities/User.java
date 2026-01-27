@@ -11,8 +11,10 @@ import lombok.Setter;
 import java.util.List;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Email;
-import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -60,13 +62,13 @@ public class User implements UserDetails {
     private Double taille; // en cm
 
     @Column(nullable = true)
-    @Size(min = 0, message = "Age must be a positive number")
+    @Min(value = 0, message = "Age must be a positive number")
     private Integer age;
 
     private String objectif;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonBackReference
+    @JsonIgnore
     private List<History> histories = new ArrayList<>();
 
     @Override

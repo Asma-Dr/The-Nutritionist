@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import jakarta.validation.Valid;
 import com.nutritionist.demo.Entities.User;
 import com.nutritionist.demo.Iservices.IUserService;
 import org.springframework.http.ResponseEntity;
@@ -24,22 +25,25 @@ import java.util.Map;
 public class UserController {
 
     private final IUserService userService;
-    // private final AuthenticationManager authenticationManager;
+    private final AuthenticationManager authenticationManager;
 
-    public UserController(IUserService userService/*, AuthenticationManager authenticationManager*/) {
+    public UserController(IUserService userService, AuthenticationManager authenticationManager) {
         this.userService = userService;
-        // this.authenticationManager = authenticationManager;
+        this.authenticationManager = authenticationManager;
     }
 
     // Créer / enregistrer un utilisateur
     @PostMapping("/register")
-    public ResponseEntity<User> registerUser(@RequestBody User user) {
-        User registeredUser = userService.register(user);
-        return ResponseEntity.ok(registeredUser);
+    public ResponseEntity<?> registerUser(@Valid @RequestBody User user) {
+        try {
+            User registeredUser = userService.register(user);
+            return ResponseEntity.ok(registeredUser);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Error: " + e.getMessage());
+        }
     }
 
     // Connexion d'un utilisateur
-    /*
     @PostMapping("/login")
     public ResponseEntity<User> loginUser(@RequestBody Map<String, String> loginRequest) {
         String email = loginRequest.get("email");
@@ -55,7 +59,6 @@ public class UserController {
             return ResponseEntity.status(401).body(null); // Unauthorized
         }
     }
-    */
 
     // Rechercher un utilisateur par email
     @GetMapping("/email/{email}")
