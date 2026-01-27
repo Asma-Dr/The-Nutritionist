@@ -1,5 +1,6 @@
 package com.nutritionist.demo.Contollers;
 
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -37,9 +38,11 @@ public class UserController {
     public ResponseEntity<?> registerUser(@Valid @RequestBody User user) {
         try {
             User registeredUser = userService.register(user);
-            return ResponseEntity.ok(registeredUser);
+            return ResponseEntity.ok("User registered successfully");
+        } catch (DataIntegrityViolationException e) {
+            return ResponseEntity.status(409).body("Erreur: Email ou nom d'utilisateur déjà utilisé.");
         } catch (Exception e) {
-            return ResponseEntity.status(500).body("Error: " + e.getMessage());
+            return ResponseEntity.status(500).body("Erreur interne du serveur.");
         }
     }
 
