@@ -1,6 +1,6 @@
 // auth.js - Gestion de l'authentification frontend
 
-const API_BASE_URL = 'http://localhost:8080/api/users';
+const API_BASE_URL = 'http://localhost:8080/api';
 
 /**
  * Affiche un message à l'utilisateur
@@ -121,7 +121,7 @@ async function handleRegister(e) {
             age: parseInt(data.age)
         };
 
-        const res = await sendToBackend('/register', processedData);
+        const res = await sendToBackend('/users/register', processedData);
 
         if (res.ok) {
             showMessage('Compte créé avec succès ! Redirection...', 'success');
@@ -162,7 +162,7 @@ async function handleLogin(e) {
     submitBtn.disabled = true;
 
     try {
-        const res = await sendToBackend('/login', data);
+        const res = await sendToBackend('/users/login', data);
 
         if (res.ok) {
             const user = await res.json();
